@@ -30,7 +30,7 @@ import (
 	"sync"
 	"time"
 
-	imgManip "github.com/TheZoraiz/ascii-image-converter/image_manipulation"
+	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
 
 type GifFrame struct {

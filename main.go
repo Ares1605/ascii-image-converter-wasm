@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-import "github.com/TheZoraiz/ascii-image-converter/cmd"
+import "github.com/Ares1605/ascii-image-converter-wasm/cmd"
 
 func main() {
 	cmd.Execute()

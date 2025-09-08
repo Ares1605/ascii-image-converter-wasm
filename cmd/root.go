@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TheZoraiz/ascii-image-converter/aic_package"
+	"github.com/Ares1605/ascii-image-converter-wasm/aic_package"
 
 	"github.com/spf13/cobra"
 )
@@ -168,5 +168,5 @@ func init() {
 	defaultUsageTemplate := rootCmd.UsageTemplate()
 	rootCmd.SetUsageTemplate(defaultUsageTemplate + "\nCopyright © 2021 Zoraiz Hassan <hzoraiz8@gmail.com>\n" +
 		"Distributed under the Apache License Version 2.0 (Apache-2.0)\n" +
-		"For further details, visit https://github.com/TheZoraiz/ascii-image-converter\n")
+		"For further details, visit https://github.com/Ares1065/ascii-image-converter-wasm\n")
 }

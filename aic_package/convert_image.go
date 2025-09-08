@@ -23,7 +23,7 @@ import (
 	"os"
 	"strings"
 
-	imgManip "github.com/TheZoraiz/ascii-image-converter/image_manipulation"
+	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
 
 // This function decodes the passed image and returns an ascii art string, optionaly saving it as a .txt and/or .png file

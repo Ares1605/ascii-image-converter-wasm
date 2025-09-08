@@ -15,7 +15,7 @@ license: Apache-2.0
 parts:
   ascii-image-converter:
     plugin: go
-    go-importpath: github.com/TheZoraiz/ascii-image-converter
+    go-importpath: github.com/Ares1605/ascii-image-converter
     source: .
     build-packages:
       - gcc

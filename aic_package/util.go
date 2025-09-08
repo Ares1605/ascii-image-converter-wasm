@@ -25,7 +25,7 @@ import (
 	"runtime"
 	"strings"
 
-	imgManip "github.com/TheZoraiz/ascii-image-converter/image_manipulation"
+	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
 
 func saveAsciiArt(asciiSet [][]imgManip.AsciiChar, imagePath, savePath, urlImgName string, onlySave bool) error {
