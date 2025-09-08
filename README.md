@@ -341,12 +341,7 @@ ascii-image-converter [image paths/urls] --complex
 
 #### --full OR -f
 
-Print ascii art that fits the terminal width while maintaining aspect ratio.
-```
-ascii-image-converter [image paths/urls] -f
-# Or
-ascii-image-converter [image paths/urls] --full
-```
+IMPORTANT: This argument was removed in the fork for WASM compatibility
 
 #### --flipX OR -x
 
@@ -451,8 +446,6 @@ ascii-image-converter --formats
 
 ## Library Usage
 
-> **Note:** The library may throw errors during Go tests due to some unresolved bugs with the [consolesize-go](https://github.com/nathan-fiscaletti/consolesize-go) package (Only during tests, not main program execution).
-
 First, install the library with:
 ```
 go get -u github.com/TheZoraiz/ascii-image-converter/aic_package
@@ -539,8 +532,6 @@ You can fork the project and implement any changes you want for a pull request. 
 [github.com/fogleman/gg](https://github.com/fogleman/gg)
 
 [github.com/mitchellh/go-homedir](https://github.com/mitchellh/go-homedir)
-
-[github.com/nathan-fiscaletti/consolesize-go](https://github.com/nathan-fiscaletti/consolesize-go)
 
 [github.com/disintegration/imaging](https://github.com/disintegration/imaging)
 

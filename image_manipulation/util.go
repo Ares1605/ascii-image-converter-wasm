@@ -19,9 +19,9 @@ package image_conversions
 import (
 	"fmt"
 	"image"
+	"errors"
 	"image/color"
 
-	"github.com/TheZoraiz/ascii-image-converter/aic_package/winsize"
 	"github.com/disintegration/imaging"
 	gookitColor "github.com/gookit/color"
 	"github.com/makeworld-the-better-one/dither/v2"
@@ -40,7 +40,7 @@ func ditherImage(img image.Image) image.Image {
 	return d.DitherCopy(img)
 }
 
-func resizeImage(img image.Image, full, isBraille bool, dimensions []int, width, height int) (image.Image, error) {
+func resizeImage(img image.Image, isBraille bool, dimensions []int, width, height int) (image.Image, error) {
 
 	var asciiWidth, asciiHeight int
 	var smallImg image.Image
@@ -49,17 +49,7 @@ func resizeImage(img image.Image, full, isBraille bool, dimensions []int, width,
 	imgHeight := float64(img.Bounds().Dy())
 	aspectRatio := imgWidth / imgHeight
 
-	if full {
-		terminalWidth, _, err := winsize.GetTerminalSize()
-		if err != nil {
-			return nil, err
-		}
-
-		asciiWidth = terminalWidth - 1
-		asciiHeight = int(float64(asciiWidth) / aspectRatio)
-		asciiHeight = int(0.5 * float64(asciiHeight))
-
-	} else if (width != 0 || height != 0) && len(dimensions) == 0 {
+	if (width != 0 || height != 0) && len(dimensions) == 0 {
 		// If either width or height is set and dimensions aren't given
 
 		if width != 0 && height == 0 {
@@ -89,24 +79,7 @@ func resizeImage(img image.Image, full, isBraille bool, dimensions []int, width,
 		}
 
 	} else if len(dimensions) == 0 {
-		// This condition calculates aspect ratio according to terminal height
-
-		terminalWidth, terminalHeight, err := winsize.GetTerminalSize()
-		if err != nil {
-			return nil, err
-		}
-
-		asciiHeight = terminalHeight - 1
-		asciiWidth = int(float64(asciiHeight) * aspectRatio)
-		asciiWidth = int(2 * float64(asciiWidth))
-
-		// If ascii width exceeds terminal width, change ratio with respect to terminal width
-		if asciiWidth >= terminalWidth {
-			asciiWidth = terminalWidth - 1
-			asciiHeight = int(float64(asciiWidth) / aspectRatio)
-			asciiHeight = int(0.5 * float64(asciiHeight))
-		}
-
+		return nil, errors.New("Either dimensions, width, or height must be passed.")
 	} else {
 		// Else, set passed dimensions
 

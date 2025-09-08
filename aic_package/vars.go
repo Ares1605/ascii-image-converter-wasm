@@ -70,9 +70,10 @@ type Flags struct {
 	// Flip ascii art vertically
 	FlipY bool
 
-	// Use terminal width to calculate ascii art size while keeping aspect ratio.
-	// This overrides Flags.Dimensions, Flags.Width and Flags.Height
-	Full bool
+	// IMPORTANT: This argument was removed in the fork for WASM compatibility
+	// // Use terminal width to calculate ascii art size while keeping aspect ratio.
+	// // This overrides Flags.Dimensions, Flags.Width and Flags.Height
+	// Full bool
 
 	// File path to a font .ttf file to use when saving ascii art gif or png file.
 	// This will be ignored if Flags.SaveImagePath or Flags.SaveGifPath are not set
@@ -119,7 +120,6 @@ var (
 	customMap     string
 	flipX         bool
 	flipY         bool
-	full          bool
 	fontPath      string
 	fontColor     [3]int
 	saveBgColor   [4]int

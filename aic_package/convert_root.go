@@ -61,7 +61,6 @@ func DefaultFlags() Flags {
 		CustomMap:           "",
 		FlipX:               false,
 		FlipY:               false,
-		Full:                false,
 		FontFilePath:        "",
 		FontColor:           [3]int{255, 255, 255},
 		SaveBackgroundColor: [4]int{0, 0, 0, 100},
@@ -97,7 +96,6 @@ func Convert(filePath string, flags Flags) (string, error) {
 	customMap = flags.CustomMap
 	flipX = flags.FlipX
 	flipY = flags.FlipY
-	full = flags.Full
 	fontPath = flags.FontFilePath
 	fontColor = flags.FontColor
 	saveBgColor = flags.SaveBackgroundColor

@@ -22,9 +22,7 @@ import (
 
 	"github.com/TheZoraiz/ascii-image-converter/aic_package"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -45,7 +43,6 @@ var (
 	customMap     string
 	flipX         bool
 	flipY         bool
-	full          bool
 	fontFile      string
 	fontColor     []int
 	saveBgColor   []int
@@ -83,7 +80,6 @@ var (
 				CustomMap:           customMap,
 				FlipX:               flipX,
 				FlipY:               flipY,
-				Full:                full,
 				FontFilePath:        fontFile,
 				FontColor:           [3]int{fontColor[0], fontColor[1], fontColor[2]},
 				SaveBackgroundColor: [4]int{saveBgColor[0], saveBgColor[1], saveBgColor[2], saveBgColor[3]},
@@ -137,8 +133,6 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-
 	rootCmd.PersistentFlags().SortFlags = false
 	rootCmd.Flags().SortFlags = false
 
@@ -154,7 +148,6 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&dither, "dither", false, "Apply dithering on image for braille\nart conversion\n(Only applicable with --braille flag)\n(Negates --threshold flag)\n")
 	rootCmd.PersistentFlags().BoolVarP(&grayscale, "grayscale", "g", false, "Display grayscale ascii art\n(Inverts with --negative flag)\n(Overrides --font-color flag)\n")
 	rootCmd.PersistentFlags().BoolVarP(&complex, "complex", "c", false, "Display ascii characters in a larger range\nMay result in higher quality\n")
-	rootCmd.PersistentFlags().BoolVarP(&full, "full", "f", false, "Use largest dimensions for ascii art\nthat fill the terminal width\n(Overrides --dimensions, --width and --height flags)\n")
 	rootCmd.PersistentFlags().BoolVarP(&negative, "negative", "n", false, "Display ascii art in negative colors\n")
 	rootCmd.PersistentFlags().BoolVarP(&flipX, "flipX", "x", false, "Flip ascii art horizontally\n")
 	rootCmd.PersistentFlags().BoolVarP(&flipY, "flipY", "y", false, "Flip ascii art vertically\n")
@@ -176,30 +169,4 @@ func init() {
 	rootCmd.SetUsageTemplate(defaultUsageTemplate + "\nCopyright © 2021 Zoraiz Hassan <hzoraiz8@gmail.com>\n" +
 		"Distributed under the Apache License Version 2.0 (Apache-2.0)\n" +
 		"For further details, visit https://github.com/TheZoraiz/ascii-image-converter\n")
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		// Search config in home directory with name ".ascii-image-converter" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".ascii-image-converter")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
 }

@@ -49,7 +49,7 @@ func pathIsImage(imagePath, urlImgName string, pathIsURl bool, urlImgBytes, pipe
 		}
 	}
 
-	imgSet, err := imgManip.ConvertToAsciiPixels(imData, dimensions, width, height, flipX, flipY, full, braille, dither)
+	imgSet, err := imgManip.ConvertToAsciiPixels(imData, dimensions, width, height, flipX, flipY, braille, dither)
 	if err != nil {
 		return "", err
 	}

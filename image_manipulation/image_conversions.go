@@ -34,9 +34,9 @@ getting numeric data for ASCII character comparison.
 
 The returned 2D AsciiPixel slice contains each corresponding pixel's values
 */
-func ConvertToAsciiPixels(img image.Image, dimensions []int, width, height int, flipX, flipY, full, isBraille, dither bool) ([][]AsciiPixel, error) {
+func ConvertToAsciiPixels(img image.Image, dimensions []int, width, height int, flipX, flipY, isBraille, dither bool) ([][]AsciiPixel, error) {
 
-	smallImg, err := resizeImage(img, full, isBraille, dimensions, width, height)
+	smallImg, err := resizeImage(img, isBraille, dimensions, width, height)
 
 	if err != nil {
 		return nil, err
