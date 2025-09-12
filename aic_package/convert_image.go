@@ -20,33 +20,22 @@ import (
 	"bytes"
 	"fmt"
 	"image"
-	"os"
 	"strings"
 
 	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
 
 // This function decodes the passed image and returns an ascii art string, optionaly saving it as a .txt and/or .png file
-func pathIsImage(imagePath, urlImgName string, pathIsURl bool, urlImgBytes, pipedInputBytes []byte, localImg *os.File) (string, error) {
+func pathIsImage(pipedInputBytes []byte) (string, error) {
 
 	var (
 		imData image.Image
 		err    error
 	)
 
-	if imagePath == "-" {
-		imData, _, err = image.Decode(bytes.NewReader(pipedInputBytes))
-	} else if pathIsURl {
-		imData, _, err = image.Decode(bytes.NewReader(urlImgBytes))
-	} else {
-		imData, _, err = image.Decode(localImg)
-	}
+	imData, _, err = image.Decode(bytes.NewReader(pipedInputBytes))
 	if err != nil {
-		if imagePath == "-" {
-			return "", fmt.Errorf("can't decode piped input: %v", err)
-		} else {
-			return "", fmt.Errorf("can't decode %v: %v", imagePath, err)
-		}
+		return "", fmt.Errorf("Can't decode input: %v", err)
 	}
 
 	imgSet, err := imgManip.ConvertToAsciiPixels(imData, dimensions, width, height, flipX, flipY, braille, dither)
@@ -65,40 +54,8 @@ func pathIsImage(imagePath, urlImgName string, pathIsURl bool, urlImgBytes, pipe
 		return "", err
 	}
 
-	// Save ascii art as .png image before printing it, if --save-img flag is passed
-	if saveImagePath != "" {
-		if err := createImageToSave(
-			asciiSet,
-			colored || grayscale,
-			saveImagePath,
-			imagePath,
-			urlImgName,
-			onlySave,
-		); err != nil {
-
-			return "", fmt.Errorf("can't save file: %v", err)
-		}
-	}
-
-	// Save ascii art as .txt file before printing it, if --save-txt flag is passed
-	if saveTxtPath != "" {
-		if err := saveAsciiArt(
-			asciiSet,
-			imagePath,
-			saveTxtPath,
-			urlImgName,
-			onlySave,
-		); err != nil {
-
-			return "", fmt.Errorf("can't save file: %v", err)
-		}
-	}
-
 	ascii := flattenAscii(asciiSet, colored || grayscale, false)
 	result := strings.Join(ascii, "\n")
 
-	if onlySave {
-		return "", nil
-	}
 	return result, nil
 }

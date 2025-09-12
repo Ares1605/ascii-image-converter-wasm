@@ -18,45 +18,13 @@ package aic_package
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
 	"runtime"
-	"strings"
 
 	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
-
-func saveAsciiArt(asciiSet [][]imgManip.AsciiChar, imagePath, savePath, urlImgName string, onlySave bool) error {
-	// To make sure uncolored ascii art is the one saved as .txt
-	saveAscii := flattenAscii(asciiSet, false, true)
-
-	saveFileName, err := createSaveFileName(imagePath, urlImgName, "-ascii-art.txt")
-	if err != nil {
-		return err
-	}
-
-	savePathLastChar := string(savePath[len(savePath)-1])
-
-	// Check if path is closed with appropriate path separator (depending on OS)
-	if savePathLastChar != string(os.PathSeparator) {
-		savePath += string(os.PathSeparator)
-	}
-
-	// If path exists
-	if _, err := os.Stat(savePath); !os.IsNotExist(err) {
-		err := ioutil.WriteFile(savePath+saveFileName, []byte(strings.Join(saveAscii, "\n")), 0666)
-		if err != nil {
-			return err
-		} else if onlySave {
-			fmt.Println("Saved " + savePath + saveFileName)
-		}
-		return nil
-	} else {
-		return fmt.Errorf("save path %v does not exist", savePath)
-	}
-}
 
 // Returns new image file name along with extension
 func createSaveFileName(imagePath, urlImgName, label string) (string, error) {

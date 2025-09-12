@@ -17,11 +17,11 @@ limitations under the License.
 package aic_package
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path"
 
 	// Image format initialization
 	_ "image/jpeg"
@@ -31,8 +31,6 @@ import (
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
-
-	"github.com/golang/freetype/truetype"
 )
 
 var pipedInputTypes = []string{
@@ -51,9 +49,6 @@ func DefaultFlags() Flags {
 		Dimensions:          nil,
 		Width:               0,
 		Height:              0,
-		SaveTxtPath:         "",
-		SaveImagePath:       "",
-		SaveGifPath:         "",
 		Negative:            false,
 		Colored:             false,
 		CharBackgroundColor: false,
@@ -63,11 +58,9 @@ func DefaultFlags() Flags {
 		FlipY:               false,
 		FontFilePath:        "",
 		FontColor:           [3]int{255, 255, 255},
-		SaveBackgroundColor: [4]int{0, 0, 0, 100},
 		Braille:             false,
 		Threshold:           128,
 		Dither:              false,
-		OnlySave:            false,
 	}
 }
 
@@ -76,7 +69,7 @@ Convert() takes an image or gif path/url as its first argument
 and a aic_package.Flags literal as the second argument, with which it alters
 the returned ascii art string.
 */
-func Convert(filePath string, flags Flags) (string, error) {
+func Convert(flags Flags) (string, error) {
 
 	if flags.Dimensions == nil {
 		dimensions = nil
@@ -86,9 +79,6 @@ func Convert(filePath string, flags Flags) (string, error) {
 	width = flags.Width
 	height = flags.Height
 	complex = flags.Complex
-	saveTxtPath = flags.SaveTxtPath
-	saveImagePath = flags.SaveImagePath
-	saveGifPath = flags.SaveGifPath
 	negative = flags.Negative
 	colored = flags.Colored
 	colorBg = flags.CharBackgroundColor
@@ -98,108 +88,49 @@ func Convert(filePath string, flags Flags) (string, error) {
 	flipY = flags.FlipY
 	fontPath = flags.FontFilePath
 	fontColor = flags.FontColor
-	saveBgColor = flags.SaveBackgroundColor
 	braille = flags.Braille
 	threshold = flags.Threshold
 	dither = flags.Dither
-	onlySave = flags.OnlySave
-
-	inputIsGif = path.Ext(filePath) == ".gif"
 
 	// Declared at the start since some variables are initially used in conditional blocks
 	var (
-		localFile       *os.File
-		urlImgBytes     []byte
-		urlImgName      string = ""
-		pipedInputBytes []byte
+		inputBytes []byte
 		err             error
 	)
 
-	pathIsURl := isURL(filePath)
+	// Check file/data type of piped input
 
-	// Different modes of reading data depending upon whether or not filePath is a url
+	if !isInputFromPipe() {
+		return "", fmt.Errorf("there is no input being piped to stdin")
+	}
 
-	if filePath != "-" {
-		if pathIsURl {
-			fmt.Printf("Fetching file from url...\r")
+	inputBytes, err = ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return "", fmt.Errorf("unable to read piped input: %v", err)
+	}
 
-			retrievedImage, err := http.Get(filePath)
-			if err != nil {
-				return "", fmt.Errorf("can't fetch content: %v", err)
-			}
+	fileType := http.DetectContentType(inputBytes)
+	invalidInput := true
 
-			urlImgBytes, err = ioutil.ReadAll(retrievedImage.Body)
-			if err != nil {
-				return "", fmt.Errorf("failed to read fetched content: %v", err)
-			}
-			defer retrievedImage.Body.Close()
-
-			urlImgName = path.Base(filePath)
-			fmt.Printf("                          \r") // To erase "Fetching image from url..." text from terminal
-
-		} else {
-
-			localFile, err = os.Open(filePath)
-			if err != nil {
-				return "", fmt.Errorf("unable to open file: %v", err)
-			}
-			defer localFile.Close()
-
-		}
-
+	if fileType == "image/gif" {
+		inputIsGif = true
+		invalidInput = false
 	} else {
-		// Check file/data type of piped input
-
-		if !isInputFromPipe() {
-			return "", fmt.Errorf("there is no input being piped to stdin")
-		}
-
-		pipedInputBytes, err = ioutil.ReadAll(os.Stdin)
-		if err != nil {
-			return "", fmt.Errorf("unable to read piped input: %v", err)
-		}
-
-		fileType := http.DetectContentType(pipedInputBytes)
-		invalidInput := true
-
-		if fileType == "image/gif" {
-			inputIsGif = true
-			invalidInput = false
-
-		} else {
-			for _, inputType := range pipedInputTypes {
-				if fileType == inputType {
-					invalidInput = false
-					break
-				}
+		for _, inputType := range pipedInputTypes {
+			if fileType == inputType {
+				invalidInput = false
+				break
 			}
-		}
-
-		// Not sure if I should uncomment this.
-		// The output may be piped to another program and a warning would contaminate that
-		if invalidInput {
-			// fmt.Println("Warning: file type of piped input could not be determined, treating it as an image")
 		}
 	}
 
-	// If path to font file is provided, use it
-	if fontPath != "" {
-		fontFile, err := ioutil.ReadFile(fontPath)
-		if err != nil {
-			return "", fmt.Errorf("unable to open font file: %v", err)
-		}
-
-		// tempFont is globally declared in aic_package/create_ascii_image.go
-		if tempFont, err = truetype.Parse(fontFile); err != nil {
-			return "", fmt.Errorf("unable to parse font file: %v", err)
-		}
-	} else if braille {
-		tempFont, _ = truetype.Parse(embeddedDejaVuObliqueFont)
+	if invalidInput {
+		return "", errors.New("File type of piped input could not be determined, input may be malformed or not be one of the supported file types")
 	}
 
 	if inputIsGif {
-		return "", pathIsGif(filePath, urlImgName, pathIsURl, urlImgBytes, pipedInputBytes, localFile)
+		return "", pathIsGif(inputBytes)
 	} else {
-		return pathIsImage(filePath, urlImgName, pathIsURl, urlImgBytes, pipedInputBytes, localFile)
+		return pathIsImage(inputBytes)
 	}
 }

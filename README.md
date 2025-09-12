@@ -1,9 +1,9 @@
 # ascii-image-converter
 
-[![release-version](https://img.shields.io/github/v/release/TheZoraiz/ascii-image-converter?label=Latest%20Version)](https://github.com/TheZoraiz/ascii-image-converter/releases/latest)
-[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/TheZoraiz/ascii-image-converter/blob/master/LICENSE.txt)
+[![release-version](https://img.shields.io/github/v/release/Ares1605/ascii-image-converter?label=Latest%20Version)](https://github.com/Ares1605/ascii-image-converter/releases/latest)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/Ares1605/ascii-image-converter/blob/master/LICENSE.txt)
 [![language](https://img.shields.io/badge/Language-Go-blue)](https://golang.org/)
-![release-downloads](https://img.shields.io/github/downloads/TheZoraiz/ascii-image-converter/total?color=1d872d&label=Release%20Downloads)
+![release-downloads](https://img.shields.io/github/downloads/Ares1605/ascii-image-converter/total?color=1d872d&label=Release%20Downloads)
 [![ascii-image-converter-snap](https://snapcraft.io/ascii-image-converter/badge.svg)](https://snapcraft.io/ascii-image-converter)
 
 ascii-image-converter is a command-line tool that converts images into ascii art and prints them out onto the console. Available on Windows, Linux and macOS.
@@ -19,7 +19,7 @@ Input formats currently supported:
 * GIF
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/all.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter/master/example_gifs/all.gif">
 </p>
 
 ## Table of Contents
@@ -42,84 +42,6 @@ Input formats currently supported:
 
 ## Installation
 
-### Debian or Ubuntu-based Distros
-
-Execute the following commands in order:
-
-```
-echo 'deb [trusted=yes] https://apt.fury.io/ascii-image-converter/ /' | sudo tee /etc/apt/sources.list.d/ascii-image-converter.list
-```
-```
-sudo apt update
-```
-```
-sudo apt install -y ascii-image-converter
-```
-<br>
-
-To remove the package source (which means you won't be getting any further updates), execute this command:
-
-```
-sudo rm -v /etc/apt/sources.list.d/ascii-image-converter.list
-```
-
-<hr>
-
-### Homebrew
-
-Installation with homebrew is available for both Linux and macOS.
-```
-brew install TheZoraiz/ascii-image-converter/ascii-image-converter
-```
-[Link to homebrew repository](https://github.com/TheZoraiz/homebrew-ascii-image-converter)
-
-<hr>
-
-### AUR
-
-The AUR repo is maintained by [magnus-tesshu](https://aur.archlinux.org/account/magnus-tesshu)
-
-Standard way:
-```
-git clone https://aur.archlinux.org/ascii-image-converter-git.git
-```
-```
-cd ascii-image-converter-git/
-```
-```
-makepkg -si
-```
-AUR helper:
-```
-<aur-helper> -S ascii-image-converter-git
-```
-<hr>
-
-### Scoop
-
-The scoop manifest is maintained by [brian6932](https://github.com/brian6932)
-
-```
-scoop install ascii-image-converter
-```
-
-<hr>
-
-### Snap
-
-
-> **Note:** The snap will not have access to hidden files and files outside the $HOME directory. This includes write access for saving ascii art as well.
-
-```
-sudo snap install ascii-image-converter
-```
-Visit [the app's snap store listing](https://snapcraft.io/ascii-image-converter) for instructions regarding enabling snapd on your distribution.
-
-
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/ascii-image-converter)
-
-<hr>
-
 ### Go
 
 ```
@@ -131,26 +53,26 @@ For physically installing the binaries, follow the steps with respect to your OS
 
 ### Linux
 
-Download the archive for your distribution's architecture [here](https://github.com/TheZoraiz/ascii-image-converter/releases/latest), extract it, and open the extracted directory.
+Download the archive for your distribution's architecture [here](https://github.com/Ares1605/ascii-image-converter-wasm/releases/latest), extract it, and open the extracted directory.
 
 Now, open a terminal in the same directory and execute this command:
 
 ```
-sudo cp ascii-image-converter /usr/local/bin/
+sudo cp ascii-image-converter-wasm /usr/local/bin/
 ```
-Now you can use ascii-image-converter in the terminal. Execute `ascii-image-converter -h` for more details.
+Now you can use ascii-image-converter-wasm in the terminal. Execute `ascii-image-converter-wasm -h` for more details.
 
 ### Windows
 
-You will need to set an Environment Variable to the folder the ascii-image-converter.exe executable is placed in to be able to use it in the command prompt. Follow the instructions in case of confusion:
+You will need to set an Environment Variable to the folder the ascii-image-converter-wasm.exe executable is placed in to be able to use it in the command prompt. Follow the instructions in case of confusion:
 
-Download the archive for your Windows architecture [here](https://github.com/TheZoraiz/ascii-image-converter/releases/latest), extract it, and open the extracted folder. Now, copy the folder path from the top of the file explorer and follow these instructions:
+Download the archive for your Windows architecture [here](https://github.com/Ares1605/ascii-image-converter-wasm/releases/latest), extract it, and open the extracted folder. Now, copy the folder path from the top of the file explorer and follow these instructions:
 * In Search, search for and then select: Advanced System Settings
 * Click Environment Variables. In the section User Variables find the Path environment variable and select it. Click "Edit".
 * In the Edit Environment Variable window, click "New" and then paste the path of the folder that you copied initially.
 * Click "Ok" on all open windows.
 
-Now, restart any open command prompt and execute `ascii-image-converter -h` for more details.
+Now, restart any open command prompt and execute `ascii-image-converter-wasm -h` for more details.
 
 <br>
 
@@ -161,18 +83,12 @@ Now, restart any open command prompt and execute `ascii-image-converter -h` for 
 The basic usage for converting an image into ascii art is as follows. You can also supply multiple image paths and urls as well as a GIF.
 
 ```
-ascii-image-converter [image paths/urls]
+[piped input] | ascii-image-converter-wasm -
 ```
 Example:
 ```
-ascii-image-converter myImage.jpeg
+myImage.jpeg | ascii-image-converter-wasm -
 ```
-
-> **Note:** Piped binary input is also supported
-> ```
-> cat myImage.png | ascii-image-converter -
-> ```
-
 
 ### Flags
 
@@ -183,13 +99,13 @@ ascii-image-converter myImage.jpeg
 Display ascii art with the colors from original image.
 
 ```
-ascii-image-converter [image paths/urls] -C
+[piped input] | ascii-image-converter-wasm -C -
 # Or
-ascii-image-converter [image paths/urls] --color
+[piped input] | ascii-image-converter-wasm --color -
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/color.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter-wasm/master/example_gifs/color.gif">
 </p>
 
 #### --braille OR -b
@@ -198,13 +114,13 @@ ascii-image-converter [image paths/urls] --color
 
 Use braille characters instead of ascii. For this flag, your terminal must support braille patters (UTF-8) properly. Otherwise, you may encounter problems with colored or even uncolored braille art.
 ```
-ascii-image-converter [image paths/urls] -b
+[piped input] | ascii-image-converter-wasm -b -
 # Or
-ascii-image-converter [image paths/urls] --braille
+[piped input] | ascii-image-converter-wasm --braille -
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/braille.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter-wasm/master/example_gifs/braille.gif">
 </p>
 
 #### --threshold
@@ -213,7 +129,7 @@ Set threshold value to compare for braille art when converting each pixel into a
 
 Example:
 ```
-ascii-image-converter [image paths/urls] -b --threshold 170
+[piped input] | ascii-image-converter-wasm -b --threshold 170 -
 ```
 
 #### --dither
@@ -222,18 +138,18 @@ Apply dithering on image to make braille art more visible. Since braille dots ca
 
 Example:
 ```
-ascii-image-converter [image paths/urls] -b --dither
+[piped input] | ascii-image-converter-wasm -b --dither -
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/dither.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter-wasm/master/example_gifs/dither.gif">
 </p>
 
 #### --color-bg
 
-If any of the coloring flags is passed, this flag will transfer its color to each character's background. instead of foreground. However, this option isn't available for `--save-img` and `--save-gif`
+If any of the coloring flags is passed, this flag will transfer its color to each character's background. instead of foreground.
 ```
-ascii-image-converter [image paths/urls] -C --color-bg
+[piped input] | ascii-image-converter-wasm -C --color-bg -
 ```
 
 #### --dimensions OR -d
@@ -242,16 +158,16 @@ ascii-image-converter [image paths/urls] -C --color-bg
 
 Set the width and height for ascii art in CHARACTER lengths.
 ```
-ascii-image-converter [image paths/urls] -d <width>,<height>
+[piped input] | ascii-image-converter-wasm -d <width>,<height> -
 # Or
-ascii-image-converter [image paths/urls] --dimensions <width>,<height>
+[piped input] | ascii-image-converter-wasm --dimensions <width>,<height> -
 ```
 Example:
 ```
-ascii-image-converter [image paths/urls] -d 60,30
+[piped input] | ascii-image-converter-wasm -d 60,30 -
 ```
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/dimensions.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter-wasm/master/example_gifs/dimensions.gif">
 </p>
 
 #### --width OR -W
@@ -260,13 +176,13 @@ ascii-image-converter [image paths/urls] -d 60,30
 
 Set width of ascii art. Height is calculated according to aspect ratio.
 ```
-ascii-image-converter [image paths/urls] -W <width>
+[piped input] | ascii-image-converter-wasm -W <width> -
 # Or
-ascii-image-converter [image paths/urls] --width <width>
+[piped input] | ascii-image-converter-wasm --width <width> -
 ```
 Example:
 ```
-ascii-image-converter [image paths/urls] -W 60
+[piped input] | ascii-image-converter-wasm -W 60 -
 ```
 
 #### --height OR -H
@@ -275,13 +191,13 @@ ascii-image-converter [image paths/urls] -W 60
 
 Set height of ascii art. Width is calculated according to aspect ratio.
 ```
-ascii-image-converter [image paths/urls] -H <height>
+[piped input] | ascii-image-converter-wasm -H <height> -
 # Or
-ascii-image-converter [image paths/urls] --height <height>
+[piped input] | ascii-image-converter-wasm --height <height> -
 ```
 Example:
 ```
-ascii-image-converter [image paths/urls] -H 60
+[piped input] | ascii-image-converter-wasm -H 60 -
 ```
 
 #### --map OR -m
@@ -293,17 +209,17 @@ Pass a string of your own ascii characters to map against. Passed characters mus
 Empty spaces can be passed if string is passed inside quotation marks. You can use both single or double quote for quotation marks. For repeating quotation mark inside string, append it with \ (such as  \\").
 
 ```
-ascii-image-converter [image paths/urls] -m "<string-of-characters>"
+[piped input] | ascii-image-converter-wasm -m "<string-of-characters>" -
 # Or
-ascii-image-converter [image paths/urls] --map "<string-of-characters>"
+[piped input] | ascii-image-converter-wasm --map "<string-of-characters>" -
 ```
 Following example contains 7 depths of lighting.
 ```
-ascii-image-converter [image paths/urls] -m " .-=+#@"
+[piped input] | ascii-image-converter-wasm -m " .-=+#@" -
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/map.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter-wasm/master/example_gifs/map.gif">
 </p>
 
 #### --grayscale OR -g
@@ -311,9 +227,9 @@ ascii-image-converter [image paths/urls] -m " .-=+#@"
 Display ascii art in grayscale colors. This is the same as --color flag, except each character will be encoded with a grayscale RGB value.
 
 ```
-ascii-image-converter [image paths/urls] -g
+[piped input] | ascii-image-converter-wasm -g -
 # Or
-ascii-image-converter [image paths/urls] --grayscale
+[piped input] | ascii-image-converter-wasm --grayscale -
 ```
 
 #### --negative OR -n
@@ -321,22 +237,22 @@ ascii-image-converter [image paths/urls] --grayscale
 Display ascii art in negative colors. Works with both uncolored and colored text from --color flag.
 
 ```
-ascii-image-converter [image paths/urls] -n
+[piped input] | ascii-image-converter-wasm -n -
 # Or
-ascii-image-converter [image paths/urls] --negative
+[piped input] | ascii-image-converter-wasm -negative -
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/negative.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter-wasm/master/example_gifs/negative.gif">
 </p>
 
 #### --complex OR -c
 
 Print the image with a wider array of ascii characters for more detailed lighting density. Sometimes improves accuracy.
 ```
-ascii-image-converter [image paths/urls] -c
+[piped input] | ascii-image-converter-wasm -c -
 # Or
-ascii-image-converter [image paths/urls] --complex
+[piped input] | ascii-image-converter-wasm --complex -
 ```
 
 #### --full OR -f
@@ -348,90 +264,28 @@ IMPORTANT: This argument was removed in the fork for WASM compatibility
 Flip the ascii art horizontally on the terminal.
 
 ```
-ascii-image-converter [image paths/urls] --flipX
+[piped input] | ascii-image-converter-wasm --flipX -
 # Or
-ascii-image-converter [image paths/urls] -x
+[piped input] | ascii-image-converter-wasm -x -
 ```
 
 #### --flipY OR -y
 Flip the ascii art vertically on the terminal.
 
 ```
-ascii-image-converter [image paths/urls] --flipY
+[piped input] | ascii-image-converter-wasm --flipY -
 # Or
-ascii-image-converter [image paths/urls] -y
+[piped input] | ascii-image-converter-wasm -y -
 ```
 
 
-
-#### --save-img OR -s
-
-> **Note:** Don't immediately append another flag with -s
-
-Saves the ascii as a PNG image with the name `<image-name>-ascii-art.png` in the directory path passed to the flag. Can work with both --color and --negative flag.
-
-Example for current directory:
-
-```
-ascii-image-converter [image paths/urls] --save-img .
-# Or
-ascii-image-converter [image paths/urls] -s .
-```
-
-#### --save-txt
-
-Similar to --save-img but it creates a TXT file with the name `<image-name>-ascii-art.txt` in the directory path passed to the flag. Only saves uncolored text.
-
-Example for current directory:
-
-```
-ascii-image-converter [image paths/urls] --save-txt .
-```
-
-#### --save-gif
-
-> **Note:** This is an experimental feature and may not result in the finest quality GIFs, because all GIFs still aren't supported by ascii-image-converter.
-
-Saves the passed GIF as an ascii art GIF with the name `<image-name>-ascii-art.gif` in the directory path passed to the flag.
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/TheZoraiz/ascii-image-converter/master/example_gifs/save.gif">
-</p>
-
-#### --save-bg
-
-> **Note:** This flag will be ignored if `--save-img` or `--save-gif` flags are not set
-
-This flag takes an RGBA value that sets the background color in saved png and gif files. The fourth value (alpha value) is the measure of background opacity ranging between 0 and 100.
-
-```
-ascii-image-converter [image paths/urls] -s . --save-bg 255,255,255,100 # For white background
-```
-
-#### --font
-
-> **Note:** This flag will be ignored if `--save-img` or `--save-gif` flags are not set
-
-This flag takes path to a font .ttf file that will be used to set font in saved png or gif files.
-
-```
-ascii-image-converter [image paths/urls] -s . --font /path/to/font-file.ttf
-```
 
 #### --font-color
 
-This flag takes an RGB value that sets the font color in saved png and gif files as well as displayed ascii art in terminal.
+This flag takes an RGB value that sets the font color to the displayed ascii art in terminal.
 
 ```
-ascii-image-converter [image paths/urls] -s . --font-color 0,0,0 # For black font color
-```
-
-#### --only-save
-
-Don't print ascii art on the terminal if some saving flag is passed.
-
-```
-ascii-image-converter [image paths/urls] -s . --only-save
+[piped input] | ascii-image-converter-wasm --font-color 0,0,0 # For black font color
 ```
 
 #### --formats
@@ -448,7 +302,7 @@ ascii-image-converter --formats
 
 First, install the library with:
 ```
-go get -u github.com/TheZoraiz/ascii-image-converter/aic_package
+go get -u github.com/Ares1605/ascii-image-converter-wasm/aic_package
 ```
 
 For an image:
@@ -459,7 +313,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/TheZoraiz/ascii-image-converter/aic_package"
+	"github.com/Ares1605/ascii-image-converter-wasm/aic_package"
 )
 
 func main() {
@@ -473,8 +327,6 @@ func main() {
 	// There are more flags, but these are the ones shown for demonstration
 	flags.Dimensions = []int{50, 25}
 	flags.Colored = true
-	flags.SaveTxtPath = "."
-	flags.SaveImagePath = "."
 	flags.CustomMap = " .-=+#@"
 	flags.FontFilePath = "./RobotoMono-Regular.ttf" // If file is in current directory
 	flags.SaveBackgroundColor = [4]int{50, 50, 50, 100}
@@ -493,7 +345,7 @@ func main() {
 ```
 <br>
 
-> **Note:** GIF conversion is not advised as the function may run infinitely, depending on the GIF. More work needs to be done on this to make it more library-compatible.
+> **Note:** GIF conversion is not advised as the function may run infinitely, depending on the GIF.
 
 For a GIF:
 
@@ -503,7 +355,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/TheZoraiz/ascii-image-converter/aic_package"
+	"github.com/Ares1605/ascii-image-converter-wasm/aic_package"
 )
 
 func main() {
@@ -524,6 +376,7 @@ func main() {
 ## Contributing
 
 You can fork the project and implement any changes you want for a pull request. However, for major changes, please open an issue first to discuss what you would like to implement.
+PS. This is the forked project!
 
 ## Packages Used
 

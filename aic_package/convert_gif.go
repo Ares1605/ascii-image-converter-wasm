@@ -20,8 +20,6 @@ import (
 	"bytes"
 	"fmt"
 	"image"
-	"image/color/palette"
-	"image/draw"
 	"image/gif"
 	"os"
 	"runtime"
@@ -45,26 +43,16 @@ as an ascii art gif.
 
 Multi-threading has been implemented in multiple places due to long execution time
 */
-func pathIsGif(gifPath, urlImgName string, pathIsURl bool, urlImgBytes, pipedInputBytes []byte, localGif *os.File) error {
+func pathIsGif(inputBytes []byte) error {
 
 	var (
 		originalGif *gif.GIF
 		err         error
 	)
 
-	if gifPath == "-" {
-		originalGif, err = gif.DecodeAll(bytes.NewReader(pipedInputBytes))
-	} else if pathIsURl {
-		originalGif, err = gif.DecodeAll(bytes.NewReader(urlImgBytes))
-	} else {
-		originalGif, err = gif.DecodeAll(localGif)
-	}
+	originalGif, err = gif.DecodeAll(bytes.NewReader(inputBytes))
 	if err != nil {
-		if gifPath == "-" {
-			return fmt.Errorf("can't decode piped input: %v", err)
-		} else {
-			return fmt.Errorf("can't decode %v: %v", gifPath, err)
-		}
+		return fmt.Errorf("Can't decode input: %v", err)
 	}
 
 	var (
@@ -97,11 +85,7 @@ func pathIsGif(gifPath, urlImgName string, pathIsURl bool, urlImgBytes, pipedInp
 			// If a frame is found that is smaller than the first frame, then this gif contains smaller subimages that are
 			// positioned inside the original gif. This behavior isn't supported by this app
 			if firstGifFrameWidth != frameImage.Bounds().Dx() || firstGifFrameHeight != frameImage.Bounds().Dy() {
-				if urlImgName == "" {
-					fmt.Printf("Error: " + gifPath + " contains subimages smaller than default width and height\n\nProcess aborted because ascii-image-converter doesn't support subimage placement and transparency in GIFs\n\n")
-				} else {
-					fmt.Printf("Error: " + urlImgName + " contains subimages smaller than default width and height\n\nProcess aborted because ascii-image-converter doesn't support subimage placement and transparency in GIFs\n\n")
-				}
+				fmt.Printf("Error: Input contains subimages smaller than default width and height\n\nProcess aborted because ascii-image-converter doesn't support subimage placement and transparency in GIFs\n\n")
 				os.Exit(0)
 			}
 
@@ -149,126 +133,23 @@ func pathIsGif(gifPath, urlImgName string, pathIsURl bool, urlImgBytes, pipedInp
 	wg.Wait()
 	fmt.Printf("                              \r")
 
-	// Save ascii art as .gif file before displaying it, if --save-gif flag is passed
-	if saveGifPath != "" {
-
-		// Storing save path string before executing ascii art to gif conversion
-		// This is done to avoid wasting time for invalid path errors
-
-		saveFileName, err := createSaveFileName(gifPath, urlImgName, "-ascii-art.gif")
-		if err != nil {
-			return err
-		}
-
-		fullPathName, err := getFullSavePath(saveFileName, saveGifPath)
-		if err != nil {
-			return fmt.Errorf("can't save file: %v", err)
-		}
-
-		// Initializing some constants for gif. Done outside loop to save execution
-		outGif := &gif.GIF{
-			LoopCount: originalGif.LoopCount,
-		}
-		opts := gif.Options{
-			NumColors: 256,
-			Drawer:    draw.FloydSteinberg,
-		}
-
-		// Initializing slices for each ascii art image as well as delay
-		var (
-			palettedImageSlice = make([]*image.Paletted, len(gifFramesSlice))
-			delaySlice         = make([]int, len(gifFramesSlice))
-		)
-
-		// For the purpose of displaying counter and limiting concurrent processes
-		counter = 0
-		concurrentProcesses = 0
-
-		fmt.Printf("Saving gif... 0%%\r")
-
-		// Multi-threaded loop to decrease execution time
-		for i, gifFrame := range gifFramesSlice {
-
-			wg.Add(1)
-			concurrentProcesses++
-
-			go func(i int, gifFrame GifFrame) {
-
-				img := originalGif.Image[i].SubImage(originalGif.Image[i].Rect)
-
-				tempImg, err := createGifFrameToSave(
-					gifFrame.asciiCharSet,
-					img,
-					colored || grayscale,
-				)
-				if err != nil {
-					fmt.Printf("Error: %v\n", err)
-					os.Exit(0)
-				}
-
-				// Following code takes tempImg as image.Image instance and converts it into *image.Paletted instance
-				b := tempImg.Bounds()
-
-				palettedImg := image.NewPaletted(b, palette.Plan9[:opts.NumColors])
-
-				opts.Drawer.Draw(palettedImg, b, tempImg, image.Point{})
-
-				palettedImageSlice[i] = palettedImg
-				delaySlice[i] = gifFrame.delay
-
-				counter++
-				percentage := int((float64(counter) / float64(len(gifFramesSlice))) * 100)
-				fmt.Printf("Saving gif... " + strconv.Itoa(percentage) + "%%\r")
-
-				wg.Done()
-
-			}(i, gifFrame)
-
-			// Limit concurrent processes according to host's CPU count to avoid overwhelming memory
-			if concurrentProcesses == hostCpuCount {
-				wg.Wait()
-				concurrentProcesses = 0
-			}
-
-		}
-
-		wg.Wait()
-
-		outGif.Image = palettedImageSlice
-		outGif.Delay = delaySlice
-
-		gifFile, err := os.OpenFile(fullPathName, os.O_WRONLY|os.O_CREATE, 0666)
-		if err != nil {
-			return fmt.Errorf("can't save file: %v", err)
-		}
-		defer gifFile.Close()
-
-		gif.EncodeAll(gifFile, outGif)
-
-		fmt.Printf("                     \r")
-
-		fmt.Println("Saved " + fullPathName)
-	}
-
 	// Display the gif
-	if !onlySave {
-		loopCount := 0
-		for {
-			for i, asciiFrame := range asciiArtSet {
-				clearScreen()
-				fmt.Println(asciiFrame)
-				time.Sleep(time.Duration((time.Second * time.Duration(originalGif.Delay[i])) / 100))
-			}
+	loopCount := 0
+	for {
+		for i, asciiFrame := range asciiArtSet {
+			clearScreen()
+			fmt.Println(asciiFrame)
+			time.Sleep(time.Duration((time.Second * time.Duration(originalGif.Delay[i])) / 100))
+		}
 
-			// If gif is infinite loop
-			if originalGif.LoopCount == 0 {
-				continue
-			}
+		// If gif is infinite loop
+		if originalGif.LoopCount == 0 {
+			continue
+		}
 
-			loopCount++
-			if loopCount == originalGif.LoopCount {
-				break
-			}
+		loopCount++
+		if loopCount == originalGif.LoopCount {
+			break
 		}
 	}
 

@@ -32,16 +32,6 @@ type Flags struct {
 
 	// Use set of 69 characters instead of the default 10
 	Complex bool
-
-	// Path to save ascii art .txt file
-	SaveTxtPath string
-
-	// Path to save ascii art .png file
-	SaveImagePath string
-
-	// Path to save ascii art .gif file, if gif is passed
-	SaveGifPath string
-
 	// Invert ascii art character mapping as well as colors
 	Negative bool
 
@@ -99,10 +89,6 @@ type Flags struct {
 	// Apply FloydSteinberg dithering on an image before ascii conversion. This option
 	// is meant for braille art. Therefore, it will be ignored if Flags.Braille is false
 	Dither bool
-
-	// If Flags.SaveImagePath, Flags.SaveTxtPath or Flags.SaveGifPath are set, then don't
-	// print on terminal
-	OnlySave bool
 }
 
 var (
@@ -110,9 +96,6 @@ var (
 	width         int
 	height        int
 	complex       bool
-	saveTxtPath   string
-	saveImagePath string
-	saveGifPath   string
 	grayscale     bool
 	negative      bool
 	colored       bool
@@ -122,10 +105,8 @@ var (
 	flipY         bool
 	fontPath      string
 	fontColor     [3]int
-	saveBgColor   [4]int
 	braille       bool
 	threshold     int
 	dither        bool
-	onlySave      bool
 	inputIsGif    bool
 )

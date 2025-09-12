@@ -44,12 +44,12 @@ func checkInputAndFlags(args []string) bool {
 		}
 	}
 
-	if gifPresent && nonGifPresent && !onlySave {
+	if gifPresent && nonGifPresent {
 		fmt.Printf("Error: There are other inputs along with GIFs\nDue to the potential looping nature of GIFs, non-GIFs must not be supplied alongside\n\n")
 		return true
 	}
 
-	if gifCount > 1 && !onlySave {
+	if gifCount > 1 {
 		fmt.Printf("Error: There are multiple GIFs supplied\nDue to the potential looping nature of GIFs, only one GIF per command is supported\n\n")
 		return true
 	}
@@ -66,7 +66,7 @@ func checkInputAndFlags(args []string) bool {
 	}
 
 	if len(args) < 1 {
-		fmt.Printf("Error: Need at least 1 input path/url or piped input\nUse the -h flag for more info\n\n")
+		fmt.Printf("Error: Need at least 1 input for piped input\nUse the -h flag for more info\n\n")
 		return true
 	}
 
@@ -116,28 +116,6 @@ func checkInputAndFlags(args []string) bool {
 
 	}
 
-	if saveBgColor == nil {
-		saveBgColor = []int{0, 0, 0, 100}
-	} else {
-		bgValues := len(saveBgColor)
-		if bgValues != 4 {
-			fmt.Printf("Error: --save-bg requires 4 values for RGBA, got %v\n\n", bgValues)
-			return true
-		}
-
-		if saveBgColor[0] < 0 || saveBgColor[1] < 0 || saveBgColor[2] < 0 || saveBgColor[3] < 0 {
-			fmt.Printf("Error: RBG values must be between 0 and 255\n")
-			fmt.Printf("Error: Opacity value must be between 0 and 100\n\n")
-			return true
-		}
-
-		if saveBgColor[0] > 255 || saveBgColor[1] > 255 || saveBgColor[2] > 255 || saveBgColor[3] > 100 {
-			fmt.Printf("Error: RBG values must be between 0 and 255\n")
-			fmt.Printf("Error: Opacity value must be between 0 and 100\n\n")
-			return true
-		}
-	}
-
 	if fontColor == nil {
 		fontColor = []int{255, 255, 255}
 	} else {
@@ -169,11 +147,6 @@ func checkInputAndFlags(args []string) bool {
 
 	if dither && !braille {
 		fmt.Printf("Error: image dithering is only reserved for --braille flag\n\n")
-		return true
-	}
-
-	if (saveTxtPath == "" && saveImagePath == "" && saveGifPath == "") && onlySave {
-		fmt.Printf("Error: you need to supply one of --save-img, --save-txt or --save-gif for using --only-save\n\n")
 		return true
 	}
 

@@ -1,5 +1,6 @@
 /*
 Copyright © 2021 Zoraiz Hassan <hzoraiz8@gmail.com>
+Copyright © 2025 Ares Stavropoulos <aresstav04@gmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,14 +28,10 @@ import (
 
 var (
 	// Flags
-	cfgFile       string
 	complex       bool
 	dimensions    []int
 	width         int
 	height        int
-	saveTxtPath   string
-	saveImagePath string
-	saveGifPath   string
 	negative      bool
 	formatsTrue   bool
 	colored       bool
@@ -43,17 +40,14 @@ var (
 	customMap     string
 	flipX         bool
 	flipY         bool
-	fontFile      string
 	fontColor     []int
-	saveBgColor   []int
 	braille       bool
 	threshold     int
 	dither        bool
-	onlySave      bool
 
 	// Root commands
 	rootCmd = &cobra.Command{
-		Use:     "ascii-image-converter [image paths/urls or piped stdin]",
+		Use:     "[piped input] | ascii-image-converter -",
 		Short:   "Converts images and gifs into ascii art",
 		Version: "1.13.1",
 		Long:    "This tool converts images into ascii art and prints them on the terminal.\nFurther configuration can be managed with flags.",
@@ -70,9 +64,6 @@ var (
 				Dimensions:          dimensions,
 				Width:               width,
 				Height:              height,
-				SaveTxtPath:         saveTxtPath,
-				SaveImagePath:       saveImagePath,
-				SaveGifPath:         saveGifPath,
 				Negative:            negative,
 				Colored:             colored,
 				CharBackgroundColor: colorBg,
@@ -80,46 +71,31 @@ var (
 				CustomMap:           customMap,
 				FlipX:               flipX,
 				FlipY:               flipY,
-				FontFilePath:        fontFile,
 				FontColor:           [3]int{fontColor[0], fontColor[1], fontColor[2]},
-				SaveBackgroundColor: [4]int{saveBgColor[0], saveBgColor[1], saveBgColor[2], saveBgColor[3]},
 				Braille:             braille,
 				Threshold:           threshold,
 				Dither:              dither,
-				OnlySave:            onlySave,
 			}
 
 			if args[0] == "-" {
-				printAscii(args[0], flags)
+				printAscii(flags)
 				return
 			}
 
-			for _, imagePath := range args {
-				if err := printAscii(imagePath, flags); err != nil {
-					return
-				}
+			if err := printAscii(flags); err != nil {
+				return
 			}
 		},
 	}
 )
 
-func printAscii(imagePath string, flags aic_package.Flags) error {
-
-	if asciiArt, err := aic_package.Convert(imagePath, flags); err == nil {
+func printAscii(flags aic_package.Flags) error {
+	if asciiArt, err := aic_package.Convert(flags); err == nil {
 		fmt.Printf("%s", asciiArt)
 	} else {
 		fmt.Printf("Error: %v\n", err)
-
-		// Because this error will then be thrown for every image path/url passed
-		// if save path is invalid
-		if err.Error()[:15] == "can't save file" {
-			fmt.Println()
-			return err
-		}
 	}
-	if !onlySave {
-		fmt.Println()
-	}
+	fmt.Println()
 	return nil
 }
 
@@ -136,7 +112,6 @@ func init() {
 	rootCmd.PersistentFlags().SortFlags = false
 	rootCmd.Flags().SortFlags = false
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ascii-image-converter.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&colored, "color", "C", false, "Display ascii art with original colors\nIf 24-bit colors aren't supported, uses 8-bit\n(Inverts with --negative flag)\n(Overrides --grayscale and --font-color flags)\n")
 	rootCmd.PersistentFlags().BoolVar(&colorBg, "color-bg", false, "If some color flag is passed, use that color\non character background instead of foreground\n(Inverts with --negative flag)\n(Only applicable for terminal display)\n")
 	rootCmd.PersistentFlags().IntSliceVarP(&dimensions, "dimensions", "d", nil, "Set width and height for ascii art in CHARACTER length\ne.g. -d 60,30 (defaults to terminal height)\n(Overrides --width and --height flags)\n")
@@ -151,13 +126,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&negative, "negative", "n", false, "Display ascii art in negative colors\n")
 	rootCmd.PersistentFlags().BoolVarP(&flipX, "flipX", "x", false, "Flip ascii art horizontally\n")
 	rootCmd.PersistentFlags().BoolVarP(&flipY, "flipY", "y", false, "Flip ascii art vertically\n")
-	rootCmd.PersistentFlags().StringVarP(&saveImagePath, "save-img", "s", "", "Save ascii art as a .png file\nFormat: <image-name>-ascii-art.png\nImage will be saved in passed path\n(pass . for current directory)\n")
-	rootCmd.PersistentFlags().StringVar(&saveTxtPath, "save-txt", "", "Save ascii art as a .txt file\nFormat: <image-name>-ascii-art.txt\nFile will be saved in passed path\n(pass . for current directory)\n")
-	rootCmd.PersistentFlags().StringVar(&saveGifPath, "save-gif", "", "If input is a gif, save it as a .gif file\nFormat: <gif-name>-ascii-art.gif\nGif will be saved in passed path\n(pass . for current directory)\n")
-	rootCmd.PersistentFlags().IntSliceVar(&saveBgColor, "save-bg", nil, "Set background color for --save-img\nand --save-gif flags\nPass an RGBA value\ne.g. --save-bg 255,255,255,100\n(Defaults to 0,0,0,100)\n")
-	rootCmd.PersistentFlags().StringVar(&fontFile, "font", "", "Set font for --save-img and --save-gif flags\nPass file path to font .ttf file\ne.g. --font ./RobotoMono-Regular.ttf\n(Defaults to Hack-Regular for ascii and\n DejaVuSans-Oblique for braille)\n")
-	rootCmd.PersistentFlags().IntSliceVar(&fontColor, "font-color", nil, "Set font color for terminal as well as\n--save-img and --save-gif flags\nPass an RGB value\ne.g. --font-color 0,0,0\n(Defaults to 255,255,255)\n")
-	rootCmd.PersistentFlags().BoolVar(&onlySave, "only-save", false, "Don't print ascii art on terminal\nif some saving flag is passed\n")
+	rootCmd.PersistentFlags().IntSliceVar(&fontColor, "font-color", nil, "Set font color for terminal\nPass an RGB value\ne.g. --font-color 0,0,0\n(Defaults to 255,255,255)\n")
 	rootCmd.PersistentFlags().BoolVar(&formatsTrue, "formats", false, "Display supported input formats\n")
 
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Help for "+rootCmd.Name()+"\n")
@@ -167,6 +136,7 @@ func init() {
 
 	defaultUsageTemplate := rootCmd.UsageTemplate()
 	rootCmd.SetUsageTemplate(defaultUsageTemplate + "\nCopyright © 2021 Zoraiz Hassan <hzoraiz8@gmail.com>\n" +
+		"Copyright © 2025 Ares Stavropoulos <aresstav04@gmail.com>\n" +
 		"Distributed under the Apache License Version 2.0 (Apache-2.0)\n" +
 		"For further details, visit https://github.com/Ares1065/ascii-image-converter-wasm\n")
 }
