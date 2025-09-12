@@ -1,12 +1,11 @@
-# ascii-image-converter
+# ascii-image-converter-wasm
 
-[![release-version](https://img.shields.io/github/v/release/Ares1605/ascii-image-converter?label=Latest%20Version)](https://github.com/Ares1605/ascii-image-converter/releases/latest)
-[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/Ares1605/ascii-image-converter/blob/master/LICENSE.txt)
+[![release-version](https://img.shields.io/github/v/release/Ares1605/ascii-image-converter-wasm?label=Latest%20Version)](https://github.com/Ares1605/ascii-image-converter-wasm/releases/latest)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/Ares1605/ascii-image-converter-wasm/blob/master/LICENSE.txt)
 [![language](https://img.shields.io/badge/Language-Go-blue)](https://golang.org/)
-![release-downloads](https://img.shields.io/github/downloads/Ares1605/ascii-image-converter/total?color=1d872d&label=Release%20Downloads)
-[![ascii-image-converter-snap](https://snapcraft.io/ascii-image-converter/badge.svg)](https://snapcraft.io/ascii-image-converter)
+![release-downloads](https://img.shields.io/github/downloads/Ares1605/ascii-image-converter-wasm/total?color=1d872d&label=Release%20Downloads)
 
-ascii-image-converter is a command-line tool that converts images into ascii art and prints them out onto the console. Available on Windows, Linux and macOS.
+ascii-image-converter-wasm is a WASM compatible command-line tool that converts images into ascii art and prints them out onto the console. Available on Windows, Linux and macOS.
 
 Now supports braille art!
 
@@ -19,17 +18,13 @@ Input formats currently supported:
 * GIF
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter/master/example_gifs/all.gif">
+  <img src="https://raw.githubusercontent.com/Ares1605/ascii-image-converter-wasm/master/example_gifs/all.gif">
 </p>
 
 ## Table of Contents
 
+-  [A Quick Note](#a-quick-note)
 -  [Installation](#installation)
-	*  [Debian / Ubuntu-based](#debian-or-ubuntu-based-distros)
-	*  [Homebrew](#homebrew)
-	*  [AUR](#aur)
-	*  [Scoop](#scoop)
-	*  [Snap](#snap)
 	*  [Go](#go)
 	*  [Linux (binaries)](#linux)
 	*  [Windows (binaries)](#windows)
@@ -40,12 +35,17 @@ Input formats currently supported:
 -  [Packages Used](#packages-used)
 -  [License](#license)
 
+## A Quick Note
+Before reading the rest of the README, please understand the following:
+* This repo was forked from [Ares1605/ascii-image-converter-wasm](https://github.com/Ares1605/ascii-image-converter-wasm), which did all the work in building an ASCII image rendern building an ASCII image renderer.
+* It was forked to remove non-WASM-compatible features like config files, reading images from file path, and autosizing to terminal width. Fundamentally these features cannot be used or built in a WASM environment.
+
 ## Installation
 
 ### Go
 
 ```
-go install github.com/TheZoraiz/ascii-image-converter@latest
+go install github.com/Ares1605/ascii-image-converter-wasm@latest
 ```
 <hr>
 
@@ -99,9 +99,9 @@ myImage.jpeg | ascii-image-converter-wasm -
 Display ascii art with the colors from original image.
 
 ```
-[piped input] | ascii-image-converter-wasm -C -
+[piped input] | ascii-image-converter-wasm -W <width> -C -
 # Or
-[piped input] | ascii-image-converter-wasm --color -
+[piped input] | ascii-image-converter-wasm -W <width> --color -
 ```
 
 <p align="center">
@@ -114,9 +114,9 @@ Display ascii art with the colors from original image.
 
 Use braille characters instead of ascii. For this flag, your terminal must support braille patters (UTF-8) properly. Otherwise, you may encounter problems with colored or even uncolored braille art.
 ```
-[piped input] | ascii-image-converter-wasm -b -
+[piped input] | ascii-image-converter-wasm -W <width> -b -
 # Or
-[piped input] | ascii-image-converter-wasm --braille -
+[piped input] | ascii-image-converter-wasm -W <width> --braille -
 ```
 
 <p align="center">
@@ -129,7 +129,7 @@ Set threshold value to compare for braille art when converting each pixel into a
 
 Example:
 ```
-[piped input] | ascii-image-converter-wasm -b --threshold 170 -
+[piped input] | ascii-image-converter-wasm -W <width> -b --threshold 170 -
 ```
 
 #### --dither
@@ -138,7 +138,7 @@ Apply dithering on image to make braille art more visible. Since braille dots ca
 
 Example:
 ```
-[piped input] | ascii-image-converter-wasm -b --dither -
+[piped input] | ascii-image-converter-wasm -W <width> -b --dither -
 ```
 
 <p align="center">
@@ -149,7 +149,7 @@ Example:
 
 If any of the coloring flags is passed, this flag will transfer its color to each character's background. instead of foreground.
 ```
-[piped input] | ascii-image-converter-wasm -C --color-bg -
+[piped input] | ascii-image-converter-wasm -W <width> -C --color-bg -
 ```
 
 #### --dimensions OR -d
@@ -209,13 +209,13 @@ Pass a string of your own ascii characters to map against. Passed characters mus
 Empty spaces can be passed if string is passed inside quotation marks. You can use both single or double quote for quotation marks. For repeating quotation mark inside string, append it with \ (such as  \\").
 
 ```
-[piped input] | ascii-image-converter-wasm -m "<string-of-characters>" -
+[piped input] | ascii-image-converter-wasm -W <width> -m "<string-of-characters>" -
 # Or
-[piped input] | ascii-image-converter-wasm --map "<string-of-characters>" -
+[piped input] | ascii-image-converter-wasm -W <width> --map "<string-of-characters>" -
 ```
 Following example contains 7 depths of lighting.
 ```
-[piped input] | ascii-image-converter-wasm -m " .-=+#@" -
+[piped input] | ascii-image-converter-wasm -W <width> -m " .-=+#@" -
 ```
 
 <p align="center">
@@ -227,9 +227,9 @@ Following example contains 7 depths of lighting.
 Display ascii art in grayscale colors. This is the same as --color flag, except each character will be encoded with a grayscale RGB value.
 
 ```
-[piped input] | ascii-image-converter-wasm -g -
+[piped input] | ascii-image-converter-wasm -W <width> -g -
 # Or
-[piped input] | ascii-image-converter-wasm --grayscale -
+[piped input] | ascii-image-converter-wasm -W <width> --grayscale -
 ```
 
 #### --negative OR -n
@@ -237,9 +237,9 @@ Display ascii art in grayscale colors. This is the same as --color flag, except 
 Display ascii art in negative colors. Works with both uncolored and colored text from --color flag.
 
 ```
-[piped input] | ascii-image-converter-wasm -n -
+[piped input] | ascii-image-converter-wasm -W <width> -n -
 # Or
-[piped input] | ascii-image-converter-wasm -negative -
+[piped input] | ascii-image-converter-wasm -W <width> -negative -
 ```
 
 <p align="center">
@@ -250,32 +250,28 @@ Display ascii art in negative colors. Works with both uncolored and colored text
 
 Print the image with a wider array of ascii characters for more detailed lighting density. Sometimes improves accuracy.
 ```
-[piped input] | ascii-image-converter-wasm -c -
+[piped input] | ascii-image-converter-wasm -W <width> -c -
 # Or
-[piped input] | ascii-image-converter-wasm --complex -
+[piped input] | ascii-image-converter-wasm -W <width> --complex -
 ```
-
-#### --full OR -f
-
-IMPORTANT: This argument was removed in the fork for WASM compatibility
 
 #### --flipX OR -x
 
 Flip the ascii art horizontally on the terminal.
 
 ```
-[piped input] | ascii-image-converter-wasm --flipX -
+[piped input] | ascii-image-converter-wasm -W <width> --flipX -
 # Or
-[piped input] | ascii-image-converter-wasm -x -
+[piped input] | ascii-image-converter-wasm -W <width> -x -
 ```
 
 #### --flipY OR -y
 Flip the ascii art vertically on the terminal.
 
 ```
-[piped input] | ascii-image-converter-wasm --flipY -
+[piped input] | ascii-image-converter-wasm -W <width> --flipY -
 # Or
-[piped input] | ascii-image-converter-wasm -y -
+[piped input] | ascii-image-converter-wasm -W <width> -y -
 ```
 
 
@@ -285,7 +281,7 @@ Flip the ascii art vertically on the terminal.
 This flag takes an RGB value that sets the font color to the displayed ascii art in terminal.
 
 ```
-[piped input] | ascii-image-converter-wasm --font-color 0,0,0 # For black font color
+[piped input] | ascii-image-converter-wasm -W <width> --font-color 0,0,0 # For black font color
 ```
 
 #### --formats
@@ -293,7 +289,7 @@ This flag takes an RGB value that sets the font color to the displayed ascii art
 Display supported input formats.
 
 ```
-ascii-image-converter --formats
+ascii-image-converter-wasm --formats
 ```
 
 <br>

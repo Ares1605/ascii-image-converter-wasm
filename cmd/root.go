@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/Ares1605/ascii-image-converter-wasm/aic_package"
@@ -77,20 +78,27 @@ var (
 				Dither:              dither,
 			}
 
-			if args[0] == "-" {
-				printAscii(flags)
+			// Check file/data type of piped input
+			if !aic_package.IsInputFromPipe() {
+				fmt.Printf("there is no input being piped to stdin\n")
 				return
 			}
 
-			if err := printAscii(flags); err != nil {
+			inputBytes, err := ioutil.ReadAll(os.Stdin)
+			if err != nil {
+				fmt.Printf("unable to read piped input: %v\n", err)
 				return
+			}
+
+			if err = printAscii(inputBytes, flags); err != nil {
+				fmt.Printf("%v\n", err)
 			}
 		},
 	}
 )
 
-func printAscii(flags aic_package.Flags) error {
-	if asciiArt, err := aic_package.Convert(flags); err == nil {
+func printAscii(inputBytes []byte, flags aic_package.Flags) error {
+	if asciiArt, err := aic_package.Convert(inputBytes, flags); err == nil {
 		fmt.Printf("%s", asciiArt)
 	} else {
 		fmt.Printf("Error: %v\n", err)

@@ -20,39 +20,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
 	"runtime"
 
 	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
-
-// Returns new image file name along with extension
-func createSaveFileName(imagePath, urlImgName, label string) (string, error) {
-	if urlImgName != "" {
-		currExt := path.Ext(urlImgName)
-		newName := urlImgName[:len(urlImgName)-len(currExt)] // e.g. Grabs myImage from myImage.jpeg
-
-		return newName + label, nil
-	}
-
-	if imagePath == "-" {
-		if inputIsGif {
-			return "piped-gif" + label, nil
-		}
-		return "piped-img" + label, nil
-	}
-
-	fileInfo, err := os.Stat(imagePath)
-	if err != nil {
-		return "", err
-	}
-
-	currName := fileInfo.Name()
-	currExt := path.Ext(currName)
-	newName := currName[:len(currName)-len(currExt)] // e.g. Grabs myImage from myImage.jpeg
-
-	return newName + label, nil
-}
 
 // flattenAscii flattens a two-dimensional grid of ascii characters into a one dimension
 // of lines of ascii
@@ -83,32 +54,6 @@ func flattenAscii(asciiSet [][]imgManip.AsciiChar, colored, toSaveTxt bool) []st
 	return ascii
 }
 
-// Returns path with the file name concatenated to it
-func getFullSavePath(imageName, saveFilePath string) (string, error) {
-	savePathLastChar := string(saveFilePath[len(saveFilePath)-1])
-
-	// Check if path is closed with appropriate path separator (depending on OS)
-	if savePathLastChar != string(os.PathSeparator) {
-		saveFilePath += string(os.PathSeparator)
-	}
-
-	// If path exists
-	if _, err := os.Stat(saveFilePath); !os.IsNotExist(err) {
-		return saveFilePath + imageName, nil
-	} else {
-		return "", err
-	}
-}
-
-func isURL(urlString string) bool {
-	if len(urlString) < 8 {
-		return false
-	} else if urlString[:7] == "http://" || urlString[:8] == "https://" {
-		return true
-	}
-	return false
-}
-
 // Following is for clearing screen when showing gif
 var clear map[string]func()
 
@@ -137,7 +82,7 @@ func clearScreen() {
 	}
 }
 
-func isInputFromPipe() bool {
+func IsInputFromPipe() bool {
 	fileInfo, _ := os.Stdin.Stat()
 	return fileInfo.Mode()&os.ModeCharDevice == 0
 }

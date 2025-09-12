@@ -18,10 +18,7 @@ package aic_package
 
 import (
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"net/http"
-	"os"
 
 	// Image format initialization
 	_ "image/jpeg"
@@ -42,7 +39,7 @@ var pipedInputTypes = []string{
 }
 
 // Return default configuration for flags.
-// Can be sent directly to ConvertImage() for default ascii art
+// Can be sent directly to Convert() for default ascii art
 func DefaultFlags() Flags {
 	return Flags{
 		Complex:             false,
@@ -65,11 +62,11 @@ func DefaultFlags() Flags {
 }
 
 /*
-Convert() takes an image or gif path/url as its first argument
+Convert() takes a bytes array of the image/gif as its first argument
 and a aic_package.Flags literal as the second argument, with which it alters
 the returned ascii art string.
 */
-func Convert(flags Flags) (string, error) {
+func Convert(inputBytes []byte, flags Flags) (string, error) {
 
 	if flags.Dimensions == nil {
 		dimensions = nil
@@ -91,23 +88,6 @@ func Convert(flags Flags) (string, error) {
 	braille = flags.Braille
 	threshold = flags.Threshold
 	dither = flags.Dither
-
-	// Declared at the start since some variables are initially used in conditional blocks
-	var (
-		inputBytes []byte
-		err             error
-	)
-
-	// Check file/data type of piped input
-
-	if !isInputFromPipe() {
-		return "", fmt.Errorf("there is no input being piped to stdin")
-	}
-
-	inputBytes, err = ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		return "", fmt.Errorf("unable to read piped input: %v", err)
-	}
 
 	fileType := http.DetectContentType(inputBytes)
 	invalidInput := true
