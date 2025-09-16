@@ -116,24 +116,22 @@ func reverse(imgSet [][]AsciiPixel, flipX, flipY bool) [][]AsciiPixel {
 	return imgSet
 }
 
-var termColorLevel string = gookitColor.TermColorLevel().String()
-
 // This functions calculates terminal color level between rgb colors and 256-colors
 // and returns the character with escape codes appropriately
-func getColoredCharForTerm(r, g, b uint8, char string, background bool) (string, error) {
+func getColoredCharForTerm(r, g, b uint8, char string, background bool, colorLevel ColorLevel) (string, gookitColor.RGBColor, error) {
 	var coloredChar string
 
-	if termColorLevel == "millions" {
+	switch colorLevel {
+	case Millions:
 		colorRenderer := gookitColor.RGB(uint8(r), uint8(g), uint8(b), background)
 		coloredChar = colorRenderer.Sprintf("%v", char)
-
-	} else if termColorLevel == "hundreds" {
+		return coloredChar, colorRenderer, nil
+	case Hundreds:
 		colorRenderer := gookitColor.RGB(uint8(r), uint8(g), uint8(b), background).C256()
 		coloredChar = colorRenderer.Sprintf("%v", char)
-
-	} else {
-		return "", fmt.Errorf("your terminal supports neither 24-bit nor 8-bit colors. Other coloring options aren't available")
+		// after converting the RGB to C256, convert it back to RGB so we can have a 256 color normalized as an RGB color
+		return coloredChar, colorRenderer.RGB(), nil
+	default:
+		return "", gookitColor.RGBColor{}, fmt.Errorf("%d-bit color level is unsupported.", colorLevel)
 	}
-
-	return coloredChar, nil
 }

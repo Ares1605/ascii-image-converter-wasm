@@ -16,6 +16,10 @@ limitations under the License.
 
 package aic_package
 
+import (
+	"github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
+)
+
 type Flags struct {
 	// Set dimensions of ascii art. Accepts a slice of 2 integers
 	// e.g. []int{60,30}.
@@ -60,21 +64,16 @@ type Flags struct {
 	// Flip ascii art vertically
 	FlipY bool
 
-	// IMPORTANT: This argument was removed in the fork for WASM compatibility
-	// // Use terminal width to calculate ascii art size while keeping aspect ratio.
-	// // This overrides Flags.Dimensions, Flags.Width and Flags.Height
-	// Full bool
+	// Output ASCII as JSON as opposed to the straight ASCII image.
+	// This is for programmatically iterating on the ASCII output where
+	// ANSI escape codes are stripped as "ASCII" characters.
+	//
+	// e.g. "--json"
+	// [{ "char": "-", "col": [255, 255, 255] }, { "char": "+", "col": [0, 255, 255] }] 
+	JsonOutput bool
 
-	// File path to a font .ttf file to use when saving ascii art gif or png file.
-	// This will be ignored if Flags.SaveImagePath or Flags.SaveGifPath are not set
-	FontFilePath string
-
-	// Font RGB color for terminal display and saved png or gif files.
+	// Font RGB color for terminal display.
 	FontColor [3]int
-
-	// Background RGB color in saved png or gif files.
-	// This will be ignored if Flags.SaveImagePath or Flags.SaveGifPath are not set
-	SaveBackgroundColor [4]int
 
 	// Use braille characters instead of ascii. Terminal must support UTF-8 encoding.
 	// Otherwise, problems may be encountered with colored or even uncolored braille art.
@@ -89,6 +88,9 @@ type Flags struct {
 	// Apply FloydSteinberg dithering on an image before ascii conversion. This option
 	// is meant for braille art. Therefore, it will be ignored if Flags.Braille is false
 	Dither bool
+
+	// The color level (8-bit or 24-bit) that we're targetting
+	ColorLevel image_conversions.ColorLevel
 }
 
 var (
@@ -103,10 +105,11 @@ var (
 	customMap     string
 	flipX         bool
 	flipY         bool
-	fontPath      string
+	jsonOutput    bool
 	fontColor     [3]int
 	braille       bool
 	threshold     int
 	dither        bool
 	inputIsGif    bool
+	colorLevel    image_conversions.ColorLevel
 )

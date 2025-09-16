@@ -21,8 +21,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"encoding/json"
 
 	"github.com/Ares1605/ascii-image-converter-wasm/aic_package"
+	image_conversions "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 
 	"github.com/spf13/cobra"
 )
@@ -41,6 +43,8 @@ var (
 	customMap     string
 	flipX         bool
 	flipY         bool
+	jsonOutput    bool
+	hundredsColor bool
 	fontColor     []int
 	braille       bool
 	threshold     int
@@ -72,10 +76,16 @@ var (
 				CustomMap:           customMap,
 				FlipX:               flipX,
 				FlipY:               flipY,
+				JsonOutput:          jsonOutput,
 				FontColor:           [3]int{fontColor[0], fontColor[1], fontColor[2]},
 				Braille:             braille,
 				Threshold:           threshold,
 				Dither:              dither,
+				// By default, color level is set to true (24-bit) color
+				ColorLevel:          image_conversions.Millions,
+			}
+			if hundredsColor {
+				flags.ColorLevel = image_conversions.Hundreds
 			}
 
 			// Check file/data type of piped input
@@ -98,10 +108,22 @@ var (
 )
 
 func printAscii(inputBytes []byte, flags aic_package.Flags) error {
-	if asciiArt, err := aic_package.Convert(inputBytes, flags); err == nil {
-		fmt.Printf("%s", asciiArt)
+	if flags.JsonOutput {
+		if asciiArt, err := aic_package.ConvertJSON(inputBytes, flags); err == nil {
+			marshalled, err := json.Marshal(asciiArt)
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+			}
+			fmt.Printf("%s", marshalled)
+		} else {
+			fmt.Printf("Error: %v\n", err)
+		}
 	} else {
-		fmt.Printf("Error: %v\n", err)
+		if asciiArt, err := aic_package.Convert(inputBytes, flags); err == nil {
+			fmt.Printf("%s", asciiArt)
+		} else {
+			fmt.Printf("Error: %v\n", err)
+		}
 	}
 	fmt.Println()
 	return nil
@@ -134,6 +156,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&negative, "negative", "n", false, "Display ascii art in negative colors\n")
 	rootCmd.PersistentFlags().BoolVarP(&flipX, "flipX", "x", false, "Flip ascii art horizontally\n")
 	rootCmd.PersistentFlags().BoolVarP(&flipY, "flipY", "y", false, "Flip ascii art vertically\n")
+	rootCmd.PersistentFlags().BoolVarP(&jsonOutput, "json", "J", false, "Output ASCII image with JSON.\nFor programmable iteration where ANSI escape codes are not supported.\n")
+	rootCmd.PersistentFlags().BoolVar(&hundredsColor, "256-color", false, "If some color flag is passed, sets the color output to 256 (8-bit) color, as opposed to true (24-bit) color.\nWeb APIs virtually exclusively support true (24-bit) color, however this color level exists to support mundane color, or environments incompatible with true (24-bit) color.\n")
 	rootCmd.PersistentFlags().IntSliceVar(&fontColor, "font-color", nil, "Set font color for terminal\nPass an RGB value\ne.g. --font-color 0,0,0\n(Defaults to 255,255,255)\n")
 	rootCmd.PersistentFlags().BoolVar(&formatsTrue, "formats", false, "Display supported input formats\n")
 

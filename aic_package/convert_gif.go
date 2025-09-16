@@ -24,7 +24,6 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -99,9 +98,9 @@ func pathIsGif(inputBytes []byte) error {
 
 			var asciiCharSet [][]imgManip.AsciiChar
 			if braille {
-				asciiCharSet, err = imgManip.ConvertToBrailleChars(imgSet, negative, colored, grayscale, colorBg, fontColor, threshold)
+				asciiCharSet, err = imgManip.ConvertToBrailleChars(imgSet, negative, colored, grayscale, colorBg, fontColor, threshold, colorLevel)
 			} else {
-				asciiCharSet, err = imgManip.ConvertToAsciiChars(imgSet, negative, colored, grayscale, complex, colorBg, customMap, fontColor)
+				asciiCharSet, err = imgManip.ConvertToAsciiChars(imgSet, negative, colored, grayscale, complex, colorBg, customMap, fontColor, colorLevel)
 			}
 			if err != nil {
 				fmt.Printf("Error: %v\n", err)
@@ -111,9 +110,7 @@ func pathIsGif(inputBytes []byte) error {
 			gifFramesSlice[i].asciiCharSet = asciiCharSet
 			gifFramesSlice[i].delay = originalGif.Delay[i]
 
-			ascii := flattenAscii(asciiCharSet, colored || grayscale, false)
-
-			asciiArtSet[i] = strings.Join(ascii, "\n")
+			asciiArtSet[i] = flattenToAscii(asciiCharSet, colored || grayscale)
 
 			counter++
 			percentage := int((float64(counter) / float64(len(originalGif.Image))) * 100)

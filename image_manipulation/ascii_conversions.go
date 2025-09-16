@@ -16,6 +16,16 @@ limitations under the License.
 
 package image_conversions
 
+import (
+	gookitColor "github.com/gookit/color"
+)
+
+type ColorLevel int
+const (
+	Millions ColorLevel = 24
+	Hundreds ColorLevel = 8
+)
+
 var (
 	// Reference taken from http://paulbourke.net/dataformats/asciiart/
 	asciiTableSimple   = " .:-=+*#%@"
@@ -36,10 +46,12 @@ var (
 const MAX_VAL float64 = 255
 
 type AsciiChar struct {
-	OriginalColor string
-	SetColor      string
-	Simple        string
-	RgbValue      [3]uint32
+	OriginalColor    string
+	OriginalColorRGB gookitColor.RGBColor
+	SetColor         string
+	SetColorRGB      gookitColor.RGBColor
+	Simple           string
+	RgbValue         [3]uint32
 }
 
 /*
@@ -49,7 +61,7 @@ to a 2D image_conversions.AsciiChar slice
 If complex parameter is true, values are compared to 70 levels of color density in ASCII characters.
 Otherwise, values are compared to 10 levels of color density in ASCII characters.
 */
-func ConvertToAsciiChars(imgSet [][]AsciiPixel, negative, colored, grayscale, complex, colorBg bool, customMap string, fontColor [3]int) ([][]AsciiChar, error) {
+func ConvertToAsciiChars(imgSet [][]AsciiPixel, negative, colored, grayscale, complex, colorBg bool, customMap string, fontColor [3]int, colorLevel ColorLevel) ([][]AsciiChar, error) {
 
 	height := len(imgSet)
 	width := len(imgSet[0])
@@ -128,11 +140,7 @@ func ConvertToAsciiChars(imgSet [][]AsciiPixel, negative, colored, grayscale, co
 			char.Simple = asciiChar
 
 			var err error
-			if colorBg {
-				char.OriginalColor, err = getColoredCharForTerm(uint8(r), uint8(g), uint8(b), asciiChar, true)
-			} else {
-				char.OriginalColor, err = getColoredCharForTerm(uint8(r), uint8(g), uint8(b), asciiChar, false)
-			}
+			char.OriginalColor, char.OriginalColorRGB, err = getColoredCharForTerm(uint8(r), uint8(g), uint8(b), asciiChar, colorBg, colorLevel)
 			if (colored || grayscale) && err != nil {
 				return nil, err
 			}
@@ -143,11 +151,7 @@ func ConvertToAsciiChars(imgSet [][]AsciiPixel, negative, colored, grayscale, co
 				fcG := fontColor[1]
 				fcB := fontColor[2]
 
-				if colorBg {
-					char.SetColor, err = getColoredCharForTerm(uint8(fcR), uint8(fcG), uint8(fcB), asciiChar, true)
-				} else {
-					char.SetColor, err = getColoredCharForTerm(uint8(fcR), uint8(fcG), uint8(fcB), asciiChar, false)
-				}
+				char.SetColor, char.SetColorRGB, err = getColoredCharForTerm(uint8(fcR), uint8(fcG), uint8(fcB), asciiChar, colorBg, colorLevel)
 				if err != nil {
 					return nil, err
 				}
@@ -173,7 +177,7 @@ to a 2D image_conversions.AsciiChar slice
 
 Unlike ConvertToAsciiChars(), this function calculates braille characters instead of ascii
 */
-func ConvertToBrailleChars(imgSet [][]AsciiPixel, negative, colored, grayscale, colorBg bool, fontColor [3]int, threshold int) ([][]AsciiChar, error) {
+func ConvertToBrailleChars(imgSet [][]AsciiPixel, negative, colored, grayscale, colorBg bool, fontColor [3]int, threshold int, colorLevel ColorLevel) ([][]AsciiChar, error) {
 
 	BrailleThreshold = uint32(threshold)
 
@@ -221,9 +225,9 @@ func ConvertToBrailleChars(imgSet [][]AsciiPixel, negative, colored, grayscale, 
 
 			var err error
 			if colorBg {
-				char.OriginalColor, err = getColoredCharForTerm(uint8(r), uint8(g), uint8(b), brailleChar, true)
+				char.OriginalColor, char.OriginalColorRGB, err = getColoredCharForTerm(uint8(r), uint8(g), uint8(b), brailleChar, true, colorLevel)
 			} else {
-				char.OriginalColor, err = getColoredCharForTerm(uint8(r), uint8(g), uint8(b), brailleChar, false)
+				char.OriginalColor, char.OriginalColorRGB, err = getColoredCharForTerm(uint8(r), uint8(g), uint8(b), brailleChar, false, colorLevel)
 			}
 			if (colored || grayscale) && err != nil {
 				return nil, err
@@ -236,9 +240,9 @@ func ConvertToBrailleChars(imgSet [][]AsciiPixel, negative, colored, grayscale, 
 				fcB := fontColor[2]
 
 				if colorBg {
-					char.SetColor, err = getColoredCharForTerm(uint8(fcR), uint8(fcG), uint8(fcB), brailleChar, true)
+					char.SetColor, char.SetColorRGB, err = getColoredCharForTerm(uint8(fcR), uint8(fcG), uint8(fcB), brailleChar, true, colorLevel)
 				} else {
-					char.SetColor, err = getColoredCharForTerm(uint8(fcR), uint8(fcG), uint8(fcB), brailleChar, false)
+					char.SetColor, char.SetColorRGB, err = getColoredCharForTerm(uint8(fcR), uint8(fcG), uint8(fcB), brailleChar, false, colorLevel)
 				}
 				if err != nil {
 					return nil, err

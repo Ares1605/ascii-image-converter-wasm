@@ -20,42 +20,41 @@ import (
 	"bytes"
 	"fmt"
 	"image"
-	"strings"
 
 	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
 
 // This function decodes the passed image and returns an ascii art string, optionaly saving it as a .txt and/or .png file
-func pathIsImage(pipedInputBytes []byte) (string, error) {
+func pathIsImage[T any](pipedInputBytes []byte, flatten2DAscii func(asciiSet [][]imgManip.AsciiChar, colored bool) T) (T, error) {
 
 	var (
 		imData image.Image
 		err    error
+		zero T 
 	)
 
 	imData, _, err = image.Decode(bytes.NewReader(pipedInputBytes))
 	if err != nil {
-		return "", fmt.Errorf("Can't decode input: %v", err)
+		return zero, fmt.Errorf("Can't decode input: %v", err)
 	}
 
 	imgSet, err := imgManip.ConvertToAsciiPixels(imData, dimensions, width, height, flipX, flipY, braille, dither)
 	if err != nil {
-		return "", err
+		return zero, err
 	}
 
 	var asciiSet [][]imgManip.AsciiChar
 
 	if braille {
-		asciiSet, err = imgManip.ConvertToBrailleChars(imgSet, negative, colored, grayscale, colorBg, fontColor, threshold)
+		asciiSet, err = imgManip.ConvertToBrailleChars(imgSet, negative, colored, grayscale, colorBg, fontColor, threshold, colorLevel)
 	} else {
-		asciiSet, err = imgManip.ConvertToAsciiChars(imgSet, negative, colored, grayscale, complex, colorBg, customMap, fontColor)
+		asciiSet, err = imgManip.ConvertToAsciiChars(imgSet, negative, colored, grayscale, complex, colorBg, customMap, fontColor, colorLevel)
 	}
 	if err != nil {
-		return "", err
+		return zero, err
 	}
 
-	ascii := flattenAscii(asciiSet, colored || grayscale, false)
-	result := strings.Join(ascii, "\n")
+	ascii := flatten2DAscii(asciiSet, colored || grayscale)
 
-	return result, nil
+	return ascii, nil
 }

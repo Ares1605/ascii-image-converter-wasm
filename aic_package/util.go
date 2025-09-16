@@ -19,26 +19,23 @@ package aic_package
 import (
 	"fmt"
 	"os"
+	"strings"
 	"os/exec"
 	"runtime"
 
+	gookitColor "github.com/gookit/color"
 	imgManip "github.com/Ares1605/ascii-image-converter-wasm/image_manipulation"
 )
 
-// flattenAscii flattens a two-dimensional grid of ascii characters into a one dimension
-// of lines of ascii
-func flattenAscii(asciiSet [][]imgManip.AsciiChar, colored, toSaveTxt bool) []string {
+// flattenToAscii flattens a two-dimensional grid of ascii characters into a string
+// of ascii, with ANSI color codes
+func flattenToAscii(asciiSet [][]imgManip.AsciiChar, colored bool) string {
 	var ascii []string
 
 	for _, line := range asciiSet {
 		var tempAscii string
 
 		for _, char := range line {
-			if toSaveTxt {
-				tempAscii += char.Simple
-				continue
-			}
-
 			if colored {
 				tempAscii += char.OriginalColor
 			} else if fontColor != [3]int{255, 255, 255} {
@@ -51,7 +48,48 @@ func flattenAscii(asciiSet [][]imgManip.AsciiChar, colored, toSaveTxt bool) []st
 		ascii = append(ascii, tempAscii)
 	}
 
-	return ascii
+	return strings.Join(ascii, "\n")
+}
+
+type ColoredChar struct {
+	Char          string `json:"char"`
+	RGBColor      *gookitColor.RGBColor `json:"rgb"`
+}
+
+// flattenToJSONable flattens the asciiSet by simplifying the set to only what's required in understanding
+// each character and it's respective color
+func flattenToJSONable(asciiSet [][]imgManip.AsciiChar, colored bool) [][]ColoredChar {
+	simplified := make([][]ColoredChar, len(asciiSet))
+
+	for i, line := range asciiSet {
+		simplifiedLine := make([]ColoredChar, len(asciiSet[i]))
+
+		for i, char := range line {
+			if colored {
+				simplifiedLine[i] = ColoredChar{
+					Char: char.Simple,
+					RGBColor: &char.OriginalColorRGB,
+				}
+			} else if fontColor != [3]int{255, 255, 255} {
+				simplifiedLine[i] = ColoredChar{
+					Char: char.Simple,
+					RGBColor: &char.SetColorRGB,
+				}
+			} else {
+				simplifiedLine[i] = ColoredChar{
+					Char: char.Simple,
+					// If no color is requsted, we set RGBColor to nil, and
+					// trust the end-user handles this appropriately as "we don't know,
+					// and we don't care".
+					RGBColor: nil,
+				}
+			}
+		}
+
+		simplified[i] = simplifiedLine
+	}
+
+	return simplified
 }
 
 // Following is for clearing screen when showing gif

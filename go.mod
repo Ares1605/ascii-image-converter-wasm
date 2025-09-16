@@ -1,6 +1,6 @@
 module github.com/Ares1605/ascii-image-converter-wasm
 
-go 1.17
+go 1.25
 
 require (
 	github.com/disintegration/imaging v1.6.2
